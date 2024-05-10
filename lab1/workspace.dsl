@@ -61,6 +61,8 @@ workspace {
             order_service -> task_service "Добавление услуг в заказ"   
         }
 
+        user -> profiru_system "Получение и изменение информации о заказах и услугах"
+
     }
     
     views {
