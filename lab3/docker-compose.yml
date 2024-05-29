@@ -1,0 +1,71 @@
+version: '3.7'
+
+services:
+  users:
+    tty: true
+    container_name: users
+    build:
+      context: ./
+      dockerfile: ./users/Dockerfile
+    ports:
+      - 8080:8080
+    networks:
+      - arch-network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  tasks:
+    tty: true
+    container_name: tasks
+    build:
+      context: ./
+      dockerfile: ./tasks/Dockerfile
+    ports:
+      - 8081:8080
+    networks:
+      - arch-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  db:
+    container_name: postgres
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=stud
+      - POSTGRES_PASSWORD=stud
+      - PGDATA=/data/postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - 5432:5432
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $$POSTGRES_DB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - arch-network
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: stud
+      MONGO_INITDB_ROOT_PASSWORD: stud
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh 127.0.0.1:27017/test --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    networks:
+      - arch-network
+
+networks:
+  arch-network:
+    driver: "bridge"
+    external: false
