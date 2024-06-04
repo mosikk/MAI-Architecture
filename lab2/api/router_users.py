@@ -73,14 +73,13 @@ async def delete_user(id: int, cursor: psycopg2.extensions.cursor = Depends(conn
 
 
 @router.put("/users/update")
-async def update_user(user_upd: UpdateUser, cursor: psycopg2.extensions.cursor = Depends(connection.get_cursor)):
+async def update_user(id: int, user_upd: UpdateUser, cursor: psycopg2.extensions.cursor = Depends(connection.get_cursor)):
     try:
-        user_id = user_upd.user_id
         user_upd.password = hashlib.sha256(user_upd.password.encode()).hexdigest()
-        user_upd_dict = UpdateUser.model_dump(user_upd, exclude_none=True, exclude=["user_id"])
+        user_upd_dict = UpdateUser.model_dump(user_upd, exclude_none=True, exclude=["id"])
 
-        cmd = f"UPDATE users SET {', '.join([f"{key} = %s" for key in user_upd_dict.keys()])} WHERE user_id = %s RETURNING user_id"
-        cursor.execute(cmd, user_upd_dict.value() + [user_id])
+        cmd = f"UPDATE users SET {', '.join([f"{key} = %s" for key in user_upd_dict.keys()])} WHERE id = %s RETURNING id"
+        cursor.execute(cmd, list(user_upd_dict.values()) + [id])
         if cursor.fetchone():
             return {"message": "User updated"}
         else:
