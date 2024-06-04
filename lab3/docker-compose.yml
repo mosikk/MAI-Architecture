@@ -55,10 +55,13 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: stud
       MONGO_INITDB_ROOT_PASSWORD: stud
+      MONGO_DB: mongo
+      MONGO_TASKS_COLLECTION: tasks
+      MONGO_ORDERS_COLLECTION: orders
     ports:
       - 27017:27017
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh 127.0.0.1:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh 0.0.0.0:27017/test --quiet
       interval: 5s
       timeout: 5s
       retries: 3
