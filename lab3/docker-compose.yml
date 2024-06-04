@@ -28,6 +28,20 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+  
+  orders:
+    tty: true
+    container_name: orders
+    build:
+      context: ./
+      dockerfile: ./orders/Dockerfile
+    ports:
+      - 8082:8080
+    networks:
+      - arch-network
+    depends_on:
+      mongo:
+        condition: service_healthy
 
   db:
     container_name: postgres
@@ -55,9 +69,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
-      MONGO_DB: mongo
-      MONGO_TASKS_COLLECTION: tasks
-      MONGO_ORDERS_COLLECTION: orders
     ports:
       - 27017:27017
     healthcheck:

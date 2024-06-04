@@ -1,10 +1,6 @@
-import hashlib
-import os
-
 from fastapi import APIRouter, HTTPException
 from pymongo import MongoClient
 from bson import ObjectId
-from bson.errors import InvalidId
 
 from models.tasks import Task, UpdateTask
 
@@ -63,7 +59,7 @@ def delete_task(id: str):
 
 
 @router.put("/tasks/update_task")
-def update_package(id: str, task: UpdateTask):
+def update_task(id: str, task: UpdateTask):
     try:
         task_dict = task.model_dump()
         task_dict["_id"] = ObjectId(id)
